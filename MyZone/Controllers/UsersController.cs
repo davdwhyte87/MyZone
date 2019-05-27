@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MyZone.Utils;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 using MyZone.Data;
@@ -42,6 +43,16 @@ namespace MyZone.Controllers
             {
                 return BadRequest(ModelState);
             }
+            // handle encryption of password
+            string RealPassword = user.Password;
+            Passwords passwords = new Passwords();
+            string HashedPassword = passwords.EncryptPassword(RealPassword);
+            if (!HashedPassword.Equals(null))
+            {
+                user.Password = HashedPassword;
+            }
+
+            // save user to the databse
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return Ok(user);
